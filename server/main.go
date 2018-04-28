@@ -9,7 +9,15 @@ import (
 	"golang.org/x/net/html"
 )
 
-func getHtmlByUrl(url string) string {
+const (
+	bisnessLanchiURL = "http://samurai-tula.ru/bisness-lanchi/"
+
+	menuItemClass       = "vitrina_element"
+	menuItemHeaderClass = "vitrina_header"
+	menuItemImageClass  = "vitrina_image"
+)
+
+func getHTMLByURL(url string) string {
 	response, err := http.Get(url)
 	if err != nil {
 		return err.Error()
@@ -24,7 +32,7 @@ func getHtmlByUrl(url string) string {
 	return ""
 }
 
-func getTagsByClass(doc *html.Node, selector string) []*html.Node {
+func getNodesBySelector(parentNode *html.Node, selector string) []*html.Node {
 	var result []*html.Node
 	var f func(*html.Node)
 
@@ -39,25 +47,70 @@ func getTagsByClass(doc *html.Node, selector string) []*html.Node {
 		}
 	}
 
-	f(doc)
+	f(parentNode)
 
 	return result
 }
 
-func getTextsByTags(nodes []*html.Node) []string {
+func getNodesFromParentNodes(parentNodes []*html.Node, selector string) []*html.Node {
+	var result, nodes []*html.Node
+
+	for _, parentNode := range parentNodes {
+		nodes = getNodesBySelector(parentNode, selector)
+		var node *html.Node
+		if len(nodes) > 0 {
+			node = nodes[0]
+		}
+		result = append(result, node)
+	}
+	return result
+}
+
+func getTextsFromNodes(nodes []*html.Node) []string {
 	var result []string
-	for i := 0; i < len(nodes); i++ {
-		node := nodes[i]
+	for _, node := range nodes {
 		result = append(result, node.FirstChild.FirstChild.Data)
 	}
 
 	return result
 }
 
-func main() {
-	markup := getHtmlByUrl("http://samurai-tula.ru/bisness-lanchi/")
+func getAttrValueByKey(attrs []html.Attribute, key string) string {
+	for _, attr := range attrs {
+		if attr.Key == key {
+			return attr.Val
+		}
+	}
+	return ""
+}
+
+func getImageURLsFromNodes(nodes []*html.Node) []string {
+	var result []string
+	for _, node := range nodes {
+		imageNode := node.FirstChild.FirstChild
+		attrValue := getAttrValueByKey(imageNode.Attr, "href")
+		result = append(result, attrValue)
+	}
+
+	return result
+}
+
+func getMenuItemsInfo(url string) ([]string, []string) {
+	markup := getHTMLByURL(url)
 	doc, _ := html.Parse(strings.NewReader(markup))
-	tags := getTagsByClass(doc, "vitrina_header")
-	texts := getTextsByTags(tags)
+	menuItems := getNodesBySelector(doc, menuItemClass)
+
+	menuItemHeaders := getNodesFromParentNodes(menuItems, menuItemHeaderClass)
+	texts := getTextsFromNodes(menuItemHeaders)
+
+	menuItemImages := getNodesFromParentNodes(menuItems, menuItemImageClass)
+	imageURLs := getImageURLsFromNodes(menuItemImages)
+
+	return texts, imageURLs
+}
+
+func main() {
+	texts, imageURLs := getMenuItemsInfo(bisnessLanchiURL)
 	fmt.Println(texts)
+	fmt.Println(imageURLs)
 }
