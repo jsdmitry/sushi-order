@@ -22,7 +22,7 @@ type MenuItem struct {
 	Description string
 }
 
-// GetMenuByURL method return array of menu item by URL
+// GetMenuByURL method parse HTML page by URL and return the array of menu items
 func GetMenuByURL(url string) []MenuItem {
 	markup := getHTMLByURL(url)
 	doc, _ := html.Parse(strings.NewReader(markup))
@@ -33,7 +33,7 @@ func GetMenuByURL(url string) []MenuItem {
 		caption := getCaptionFromNode(menuItemNode)
 		imageURL := getImageURLFromNode(menuItemNode)
 		description := getDescriptionFromNode(menuItemNode)
-		menuItem := MenuItem{Caption: caption, ImageURL: imageURL, Description: description}
+		menuItem := MenuItem{caption, imageURL, description}
 		result = append(result, menuItem)
 	}
 	return result
