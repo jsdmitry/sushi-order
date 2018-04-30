@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	menuItemClass       = "vitrina_element"
-	menuItemHeaderClass = "vitrina_header"
-	menuItemImageClass  = "vitrina_image"
+	menuItemClass            = "vitrina_element"
+	menuItemHeaderClass      = "vitrina_header"
+	menuItemImageClass       = "vitrina_image"
+	menuItemDedcriptionClass = "shopwindow_content"
 )
 
 // MenuItem contains caption, image url and description
@@ -31,10 +32,33 @@ func GetMenuByURL(url string) []MenuItem {
 	for _, menuItemNode := range menuItemsNodes {
 		caption := getCaptionFromNode(menuItemNode)
 		imageURL := getImageURLFromNode(menuItemNode)
-		menuItem := MenuItem{Caption: caption, ImageURL: imageURL}
+		description := getDescriptionFromNode(menuItemNode)
+		menuItem := MenuItem{Caption: caption, ImageURL: imageURL, Description: description}
 		result = append(result, menuItem)
 	}
 	return result
+}
+
+func getNodeBySelector(parentNode *html.Node, selector string) *html.Node {
+	var f func(*html.Node) *html.Node
+
+	f = func(n *html.Node) *html.Node {
+		if n.Type == html.ElementNode && n.Data == "div" &&
+			len(n.Attr) > 0 && n.Attr[0].Key == "class" && n.Attr[0].Val == selector {
+			return n
+		} else {
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				result := f(c)
+				if result != nil {
+					return result
+				}
+			}
+		}
+
+		return nil
+	}
+
+	return f(parentNode)
 }
 
 func getNodesBySelector(parentNode *html.Node, selector string) []*html.Node {
@@ -58,9 +82,9 @@ func getNodesBySelector(parentNode *html.Node, selector string) []*html.Node {
 }
 
 func getCaptionFromNode(node *html.Node) string {
-	menuItemHeaderNodes := getNodesBySelector(node, menuItemHeaderClass)
-	if len(menuItemHeaderNodes) > 0 {
-		return menuItemHeaderNodes[0].FirstChild.FirstChild.Data
+	menuItemHeaderNode := getNodeBySelector(node, menuItemHeaderClass)
+	if menuItemHeaderNode != nil {
+		return menuItemHeaderNode.FirstChild.FirstChild.Data
 	}
 	return ""
 }
@@ -75,9 +99,17 @@ func getAttrValueByKey(attrs []html.Attribute, key string) string {
 }
 
 func getImageURLFromNode(node *html.Node) string {
-	imageNodes := getNodesBySelector(node, menuItemImageClass)
-	if len(imageNodes) > 0 {
-		return getAttrValueByKey(imageNodes[0].FirstChild.FirstChild.Attr, "href")
+	imageNode := getNodeBySelector(node, menuItemImageClass)
+	if imageNode != nil {
+		return getAttrValueByKey(imageNode.FirstChild.FirstChild.Attr, "href")
+	}
+	return ""
+}
+
+func getDescriptionFromNode(node *html.Node) string {
+	descriptionNode := getNodeBySelector(node, menuItemDedcriptionClass)
+	if descriptionNode != nil {
+		return descriptionNode.FirstChild.Data
 	}
 	return ""
 }
