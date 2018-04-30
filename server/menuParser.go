@@ -12,7 +12,7 @@ const (
 	menuItemClass            = "vitrina_element"
 	menuItemHeaderClass      = "vitrina_header"
 	menuItemImageClass       = "vitrina_image"
-	menuItemDedcriptionClass = "shopwindow_content"
+	menuItemDescriptionClass = "shopwindow_content"
 )
 
 // MenuItem contains caption, image url and description
@@ -107,7 +107,7 @@ func getImageURLFromNode(node *html.Node) string {
 }
 
 func getDescriptionFromNode(node *html.Node) string {
-	descriptionNode := getNodeBySelector(node, menuItemDedcriptionClass)
+	descriptionNode := getNodeBySelector(node, menuItemDescriptionClass)
 	if descriptionNode != nil {
 		return descriptionNode.FirstChild.Data
 	}
