@@ -59,7 +59,10 @@ func getNodesBySelector(parentNode *html.Node, selector string) []*html.Node {
 
 func getCaptionFromNode(node *html.Node) string {
 	menuItemHeaderNodes := getNodesBySelector(node, menuItemHeaderClass)
-	return menuItemHeaderNodes[0].FirstChild.FirstChild.Data
+	if len(menuItemHeaderNodes) > 0 {
+		return menuItemHeaderNodes[0].FirstChild.FirstChild.Data
+	}
+	return ""
 }
 
 func getAttrValueByKey(attrs []html.Attribute, key string) string {
@@ -72,8 +75,11 @@ func getAttrValueByKey(attrs []html.Attribute, key string) string {
 }
 
 func getImageURLFromNode(node *html.Node) string {
-	imageNode := getNodesBySelector(node, menuItemImageClass)
-	return getAttrValueByKey(imageNode[0].FirstChild.FirstChild.Attr, "href")
+	imageNodes := getNodesBySelector(node, menuItemImageClass)
+	if len(imageNodes) > 0 {
+		return getAttrValueByKey(imageNodes[0].FirstChild.FirstChild.Attr, "href")
+	}
+	return ""
 }
 
 func getHTMLByURL(url string) string {
