@@ -7,6 +7,7 @@ import (
 const bisnessLanchiURL = "http://samurai-tula.ru/bisness-lanchi/"
 
 func main() {
-	menu := GetMenuByURL(bisnessLanchiURL)
+	html := GetHTMLByURL(bisnessLanchiURL)
+	menu := GetMenuFromHTML(html)
 	fmt.Println(menu)
 }

@@ -22,9 +22,25 @@ type MenuItem struct {
 	Description string
 }
 
-// GetMenuByURL method parse HTML page by URL and return the array of menu items
-func GetMenuByURL(url string) []MenuItem {
-	markup := getHTMLByURL(url)
+// GetHTMLByURL method return HTML markup by URL
+func GetHTMLByURL(url string) string {
+	var result string
+	response, err := http.Get(url)
+	if err != nil {
+		result = err.Error()
+	} else {
+		defer response.Body.Close()
+		contents, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			result = err.Error()
+		}
+		result = string(contents)
+	}
+	return result
+}
+
+// GetMenuFromHTML method parse HTML page by URL and return the array of menu items
+func GetMenuFromHTML(markup string) []MenuItem {
 	doc, _ := html.Parse(strings.NewReader(markup))
 	menuItemsNodes := getNodesBySelector(doc, menuItemClass)
 
@@ -112,20 +128,4 @@ func getDescriptionFromNode(node *html.Node) string {
 		return descriptionNode.FirstChild.Data
 	}
 	return ""
-}
-
-func getHTMLByURL(url string) string {
-	var result string
-	response, err := http.Get(url)
-	if err != nil {
-		result = err.Error()
-	} else {
-		defer response.Body.Close()
-		contents, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			result = err.Error()
-		}
-		result = string(contents)
-	}
-	return result
 }
