@@ -56,25 +56,11 @@ func GetMenuFromHTML(markup string) []MenuItem {
 }
 
 func getNodeBySelector(parentNode *html.Node, selector string) *html.Node {
-	var f func(*html.Node) *html.Node
-
-	f = func(n *html.Node) *html.Node {
-		if n.Type == html.ElementNode && n.Data == "div" &&
-			len(n.Attr) > 0 && n.Attr[0].Key == "class" && n.Attr[0].Val == selector {
-			return n
-		} else {
-			for c := n.FirstChild; c != nil; c = c.NextSibling {
-				result := f(c)
-				if result != nil {
-					return result
-				}
-			}
-		}
-
-		return nil
+	result := getNodesBySelector(parentNode, selector)
+	if len(result) > 0 {
+		return result[0]
 	}
-
-	return f(parentNode)
+	return nil
 }
 
 func getNodesBySelector(parentNode *html.Node, selector string) []*html.Node {
