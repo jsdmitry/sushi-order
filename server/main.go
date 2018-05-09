@@ -10,7 +10,7 @@ const (
 func main() {
 	dataProvider := MySQLDataProvider{ConnectionString: connectionString}
 	item := MenuItem{"Kegaras", "image", "Ris, volosatiy salat"}
-	dataProvider.NewMenuItem("menu", &item)
+	dataProvider.insertMenuItem(&item)
 	html := GetHTMLByURL(bisnessLanchiURL)
 	menu := GetMenuFromHTML(html)
 	fmt.Println(menu)
