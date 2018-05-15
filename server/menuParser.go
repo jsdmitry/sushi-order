@@ -120,7 +120,7 @@ func getImageURLFromNode(node *html.Node) string {
 func getDescriptionFromNode(node *html.Node) string {
 	descriptionNode := getNodeBySelector(node, menuItemDescriptionClass)
 	if descriptionNode != nil {
-		return descriptionNode.FirstChild.Data
+		return strings.Replace(descriptionNode.FirstChild.Data, "½", "1/2", -1)
 	}
 	return ""
 }

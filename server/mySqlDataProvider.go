@@ -27,6 +27,7 @@ func (provider *MySQLDataProvider) InsertMenu(menu []*MenuItem) {
 	defer tx.Rollback()
 	defer db.Close()
 
+	removeAllMenuItems(tx)
 	createMenuTable(tx)
 	for _, menuItem := range menu {
 		insertMenuItem(tx, menuItem)
@@ -42,14 +43,18 @@ func createMenuTable(tx *sql.Tx) {
 	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` ("+
 		"`id` INT(11) NOT NULL AUTO_INCREMENT, "+
 		"`caption` VARCHAR(50) NOT NULL, "+
-		"`image_url` VARCHAR(50) NOT NULL, "+
-		"`description` VARCHAR(50) NOT NULL, "+
-		"`price` INT(11) NOT NULL,PRIMARY KEY (`id`))", menuTableName)
+		"`image_url` VARCHAR(150) NOT NULL, "+
+		"`description` VARCHAR(150) NOT NULL, "+
+		"`price` INT(11) NOT NULL,PRIMARY KEY (`id`)) COLLATE='cp1251_general_ci';", menuTableName)
 
 	_, err := tx.Exec(query)
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func removeAllMenuItems(tx *sql.Tx) {
+	tx.Exec("DELETE FROM " + menuTableName)
 }
 
 func createDBConnection(connectionString string) *sql.DB {
@@ -68,7 +73,6 @@ func insertMenuItem(tx *sql.Tx, menuItem *MenuItem) {
 		menuItem.Price)
 
 	query := fmt.Sprintf(`INSERT INTO %s (caption, image_url, description, price) VALUES(%s)`, menuTableName, valuesString)
-	fmt.Println(query)
 	_, err := tx.Exec(query)
 	if err != nil {
 		log.Fatalln(err)
