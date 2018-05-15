@@ -2,7 +2,10 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -13,6 +16,7 @@ const (
 	menuItemHeaderClass      = "vitrina_header"
 	menuItemImageClass       = "vitrina_image"
 	menuItemDescriptionClass = "shopwindow_content"
+	menuItemPriceClass       = "wpshop_price"
 )
 
 // MenuItem contains caption, image url and description
@@ -20,6 +24,7 @@ type MenuItem struct {
 	Caption     string
 	ImageURL    string
 	Description string
+	Price       uint64
 }
 
 // GetHTMLByURL method return HTML markup by URL
@@ -49,16 +54,19 @@ func GetMenuFromHTML(markup string) []MenuItem {
 		caption := getCaptionFromNode(menuItemNode)
 		imageURL := getImageURLFromNode(menuItemNode)
 		description := getDescriptionFromNode(menuItemNode)
-		menuItem := MenuItem{caption, imageURL, description}
+		price := getPriceFromNode(menuItemNode)
+		menuItem := MenuItem{caption, imageURL, description, price}
 		result = append(result, menuItem)
 	}
 	return result
 }
 
 func getNodeBySelector(parentNode *html.Node, selector string) *html.Node {
-	result := getNodesBySelector(parentNode, selector)
-	if len(result) > 0 {
-		return result[0]
+	if parentNode != nil {
+		result := getNodesBySelector(parentNode, selector)
+		if len(result) > 0 {
+			return result[0]
+		}
 	}
 	return nil
 }
@@ -68,12 +76,13 @@ func getNodesBySelector(parentNode *html.Node, selector string) []*html.Node {
 	var f func(*html.Node)
 
 	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "div" &&
-			len(n.Attr) > 0 && n.Attr[0].Key == "class" && n.Attr[0].Val == selector {
-			result = append(result, n)
-		} else {
-			for c := n.FirstChild; c != nil; c = c.NextSibling {
-				f(c)
+		if n != nil {
+			if n.Type == html.ElementNode && len(n.Attr) > 0 && n.Attr[0].Key == "class" && n.Attr[0].Val == selector {
+				result = append(result, n)
+			} else {
+				for c := n.FirstChild; c != nil; c = c.NextSibling {
+					f(c)
+				}
 			}
 		}
 	}
@@ -114,4 +123,18 @@ func getDescriptionFromNode(node *html.Node) string {
 		return descriptionNode.FirstChild.Data
 	}
 	return ""
+}
+
+func getPriceFromNode(node *html.Node) uint64 {
+	priceNode := getNodeBySelector(node.NextSibling, menuItemPriceClass)
+	if priceNode != nil {
+		r, _ := regexp.Compile("[0-9]+")
+		text := r.FindString(priceNode.FirstChild.Data)
+		result, err := strconv.ParseUint(text, 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return result
+	}
+	return 0
 }
