@@ -45,17 +45,17 @@ func GetHTMLByURL(url string) string {
 }
 
 // GetMenuFromHTML method parse HTML page by URL and return the array of menu items
-func GetMenuFromHTML(markup string) []MenuItem {
+func GetMenuFromHTML(markup string) []*MenuItem {
 	doc, _ := html.Parse(strings.NewReader(markup))
 	menuItemsNodes := getNodesBySelector(doc, menuItemClass)
 
-	var result []MenuItem
+	var result []*MenuItem
 	for _, menuItemNode := range menuItemsNodes {
 		caption := getCaptionFromNode(menuItemNode)
 		imageURL := getImageURLFromNode(menuItemNode)
 		description := getDescriptionFromNode(menuItemNode)
 		price := getPriceFromNode(menuItemNode)
-		menuItem := MenuItem{caption, imageURL, description, price}
+		menuItem := &MenuItem{caption, imageURL, description, price}
 		result = append(result, menuItem)
 	}
 	return result
