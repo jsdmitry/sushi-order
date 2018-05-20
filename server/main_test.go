@@ -33,5 +33,22 @@ func TestParseMenu(t *testing.T) {
 
 			g.Assert(menuItem.Price).Equal(uint64(320))
 		})
+
+		g.It("Parse cation, imageURL and menuURL from category item", func() {
+			markup := `<div class="tile"><a href="/sushi/"><span class="title">sushi</span><img alt="sushi" src="http://sushi.png"></a></div>`
+			categories := GetCategoriesFromHTML(markup)
+			categoryItem := categories[0]
+
+			g.Assert(categoryItem.Caption).Equal("sushi")
+			g.Assert(categoryItem.ImageURL).Equal("http://sushi.png")
+			g.Assert(categoryItem.MenuURL).Equal("/sushi/")
+		})
+
+		g.It("Parse category items from markup", func() {
+			markup := `<div><div class="tile"></div><div class="tile"></div></div>`
+			categories := GetCategoriesFromHTML(markup)
+
+			g.Assert(len(categories)).Equal(2)
+		})
 	})
 }

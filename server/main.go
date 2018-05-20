@@ -2,12 +2,19 @@ package main
 
 const (
 	connectionString = "root:12qwesdf@/sushi_order"
-	bisnessLanchiURL = "http://samurai-tula.ru/bisness-lanchi/"
+	commonURL        = "http://samurai-tula.ru"
 )
 
 func main() {
-	html := GetHTMLByURL(bisnessLanchiURL)
-	menu := GetMenuFromHTML(html)
+	categoriesHTML := GetHTMLByURL(commonURL)
+	categories := GetCategoriesFromHTML(categoriesHTML)
 	dataProvider := MySQLDataProvider{ConnectionString: connectionString}
-	dataProvider.InsertMenu(menu)
+	dataProvider.InsertCategories(categories)
+
+	for _, category := range categories {
+		menuHTML := GetHTMLByURL(commonURL + category.MenuURL)
+		menu := GetMenuFromHTML(menuHTML)
+
+		dataProvider.InsertMenu(category.ID, menu)
+	}
 }
