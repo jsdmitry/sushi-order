@@ -18,8 +18,8 @@ type MySQLDataProvider struct {
 	ConnectionString string
 }
 
-// InsertMenu method create 'menu' table if not exist and insert menu items to table
-func (provider *MySQLDataProvider) InsertMenu(categoryID int, menu []*MenuItem) {
+// InsertMenuFromCategories insert a menu items to 'menu' table by categories
+func (provider *MySQLDataProvider) InsertMenuFromCategories(categories []*CategoryItem) {
 	db := createDBConnection(provider.ConnectionString)
 	tx, err := db.Begin()
 	if err != nil {
@@ -28,10 +28,14 @@ func (provider *MySQLDataProvider) InsertMenu(categoryID int, menu []*MenuItem) 
 	defer tx.Rollback()
 	defer db.Close()
 
-	removeAllMenuItems(tx)
+	removeAllItems(tx, menuTableName)
 	createMenuTable(tx)
-	for _, menuItem := range menu {
-		insertMenuItem(tx, categoryID, menuItem)
+
+	for _, category := range categories {
+		menuHTML := GetHTMLByURL(commonURL + category.MenuURL)
+		menu := GetMenuFromHTML(menuHTML)
+
+		insertMenu(tx, category.ID, menu)
 	}
 
 	err = tx.Commit()
@@ -50,6 +54,7 @@ func (provider *MySQLDataProvider) InsertCategories(categories []*CategoryItem) 
 	defer tx.Rollback()
 	defer db.Close()
 
+	removeAllItems(tx, categoryTableName)
 	createCategoryTable(tx)
 	for _, categoryItem := range categories {
 		insertCategoryItem(tx, categoryItem)
@@ -89,8 +94,8 @@ func createCategoryTable(tx *sql.Tx) {
 	}
 }
 
-func removeAllMenuItems(tx *sql.Tx) {
-	tx.Exec("DELETE FROM " + menuTableName)
+func removeAllItems(tx *sql.Tx, tableName string) {
+	tx.Exec("DELETE FROM " + tableName)
 }
 
 func createDBConnection(connectionString string) *sql.DB {
@@ -126,5 +131,11 @@ func insertMenuItem(tx *sql.Tx, categoryID int, menuItem *MenuItem) {
 	_, err := tx.Exec(query)
 	if err != nil {
 		log.Fatalln(err)
+	}
+}
+
+func insertMenu(tx *sql.Tx, categoryID int, menu []*MenuItem) {
+	for _, menuItem := range menu {
+		insertMenuItem(tx, categoryID, menuItem)
 	}
 }
