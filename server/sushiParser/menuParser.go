@@ -21,8 +21,6 @@ const (
 	categoryItemTitleCSSClass   = "title"
 )
 
-var categoriesRequiredList = [3]string{"Супы", "Горячие блюда", "Бизнес-ланч"}
-
 // MenuItem contains Caption, ImageUrl and Description
 type MenuItem struct {
 	Caption     string
@@ -74,7 +72,7 @@ func GetMenuFromHTML(markup string) []*MenuItem {
 }
 
 // GetCategoriesFromHTML method parse HTML page and return array of category items
-func GetCategoriesFromHTML(markup string) []*CategoryItem {
+func GetCategoriesFromHTML(markup string, categoriesRequiredList []string) []*CategoryItem {
 	var result []*CategoryItem
 	doc, _ := html.Parse(strings.NewReader(markup))
 	tileNodes := getNodesBySelector(doc, categoryItemCSSClass)
@@ -94,7 +92,7 @@ func GetCategoriesFromHTML(markup string) []*CategoryItem {
 	return result
 }
 
-func isCategoryCaptionValid(arr [3]string, str string) bool {
+func isCategoryCaptionValid(arr []string, str string) bool {
 	for _, a := range arr {
 		if a == str {
 			return true

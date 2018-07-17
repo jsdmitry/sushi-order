@@ -6,6 +6,14 @@ import (
 	"github.com/franela/goblin"
 )
 
+func getCategoriesMarkup(count int) string {
+	var result string
+	for i := 0; i < count; i++ {
+		result += `<div class="tile"><a href="/sushi/"><span class="title">sushi</span><img alt="sushi" src="http://sushi.png"></a></div>`
+	}
+	return result
+}
+
 func TestParseMenu(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Parse menu from markup", func() {
@@ -35,8 +43,8 @@ func TestParseMenu(t *testing.T) {
 		})
 
 		g.It("Parse cation, imageURL and menuURL from category item", func() {
-			markup := `<div class="tile"><a href="/sushi/"><span class="title">sushi</span><img alt="sushi" src="http://sushi.png"></a></div>`
-			categories := GetCategoriesFromHTML(markup)
+			markup := getCategoriesMarkup(1)
+			categories := GetCategoriesFromHTML(markup, []string{"sushi"})
 			categoryItem := categories[0]
 
 			g.Assert(categoryItem.Caption).Equal("sushi")
@@ -45,8 +53,8 @@ func TestParseMenu(t *testing.T) {
 		})
 
 		g.It("Parse category items from markup", func() {
-			markup := `<div><div class="tile"></div><div class="tile"></div></div>`
-			categories := GetCategoriesFromHTML(markup)
+			markup := getCategoriesMarkup(2)
+			categories := GetCategoriesFromHTML(markup, []string{"sushi"})
 
 			g.Assert(len(categories)).Equal(2)
 		})
