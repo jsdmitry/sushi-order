@@ -1,4 +1,4 @@
-package main
+package sql
 
 import (
 	"database/sql"
@@ -6,6 +6,7 @@ import (
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jsdmitry/sushi-order/server/model"
 )
 
 const (
@@ -19,7 +20,7 @@ type MySQLDataProvider struct {
 }
 
 // InsertMenuFromCategories insert a menu items to 'menu' table by categories
-func (provider *MySQLDataProvider) InsertMenuFromCategories(categories []*CategoryItem) {
+func (provider *MySQLDataProvider) InsertMenuFromCategories(categories []*model.CategoryItem, getMenuData func(url string) []*model.MenuItem) {
 	db := createDBConnection(provider.ConnectionString)
 	tx, err := db.Begin()
 	if err != nil {
@@ -32,10 +33,7 @@ func (provider *MySQLDataProvider) InsertMenuFromCategories(categories []*Catego
 	createMenuTable(tx)
 
 	for _, category := range categories {
-		menuHTML := GetHTMLByURL(commonURL + category.MenuURL)
-		menu := GetMenuFromHTML(menuHTML)
-
-		insertMenu(tx, category.ID, menu)
+		insertMenu(tx, category.ID, getMenuData(category.MenuURL))
 	}
 
 	err = tx.Commit()
@@ -45,7 +43,7 @@ func (provider *MySQLDataProvider) InsertMenuFromCategories(categories []*Catego
 }
 
 // InsertCategories method create 'category' table if not exist and insert category items to table
-func (provider *MySQLDataProvider) InsertCategories(categories []*CategoryItem) {
+func (provider *MySQLDataProvider) InsertCategories(categories []*model.CategoryItem) {
 	db := createDBConnection(provider.ConnectionString)
 	tx, err := db.Begin()
 	if err != nil {
@@ -106,7 +104,7 @@ func createDBConnection(connectionString string) *sql.DB {
 	return db
 }
 
-func insertCategoryItem(tx *sql.Tx, categoryItem *CategoryItem) {
+func insertCategoryItem(tx *sql.Tx, categoryItem *model.CategoryItem) {
 	valuesString := fmt.Sprintf(`%d, "%s", "%s"`,
 		categoryItem.ID,
 		categoryItem.Caption,
@@ -119,7 +117,7 @@ func insertCategoryItem(tx *sql.Tx, categoryItem *CategoryItem) {
 	}
 }
 
-func insertMenuItem(tx *sql.Tx, categoryID int, menuItem *MenuItem) {
+func insertMenuItem(tx *sql.Tx, categoryID int, menuItem *model.MenuItem) {
 	valuesString := fmt.Sprintf(`%d, "%s", "%s", "%s", %d`,
 		categoryID,
 		menuItem.Caption,
@@ -134,7 +132,7 @@ func insertMenuItem(tx *sql.Tx, categoryID int, menuItem *MenuItem) {
 	}
 }
 
-func insertMenu(tx *sql.Tx, categoryID int, menu []*MenuItem) {
+func insertMenu(tx *sql.Tx, categoryID int, menu []*model.MenuItem) {
 	for _, menuItem := range menu {
 		insertMenuItem(tx, categoryID, menuItem)
 	}

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jsdmitry/sushi-order/server/model"
 	"golang.org/x/net/html"
 )
 
@@ -20,22 +21,6 @@ const (
 	categoryItemCSSClass        = "tile"
 	categoryItemTitleCSSClass   = "title"
 )
-
-// MenuItem contains Caption, ImageUrl and Description
-type MenuItem struct {
-	Caption     string
-	ImageURL    string
-	Description string
-	Price       uint64
-}
-
-// CategoryItem contains Caption, ImageUrl and MenuUrl
-type CategoryItem struct {
-	ID       int
-	Caption  string
-	ImageURL string
-	MenuURL  string
-}
 
 // GetHTMLByURL method return HTML markup by URL
 func GetHTMLByURL(url string) string {
@@ -55,25 +40,25 @@ func GetHTMLByURL(url string) string {
 }
 
 // GetMenuFromHTML method parse HTML page and return the array of menu items
-func GetMenuFromHTML(markup string) []*MenuItem {
+func GetMenuFromHTML(markup string) []*model.MenuItem {
 	doc, _ := html.Parse(strings.NewReader(markup))
 	menuItemsNodes := getNodesBySelector(doc, menuItemCSSClass)
 
-	var result []*MenuItem
+	var result []*model.MenuItem
 	for _, menuItemNode := range menuItemsNodes {
 		caption := getCaptionFromNode(menuItemNode)
 		imageURL := getImageURLFromNode(menuItemNode)
 		description := getDescriptionFromNode(menuItemNode)
 		price := getPriceFromNode(menuItemNode)
-		menuItem := &MenuItem{Caption: caption, ImageURL: imageURL, Description: description, Price: price}
+		menuItem := &model.MenuItem{Caption: caption, ImageURL: imageURL, Description: description, Price: price}
 		result = append(result, menuItem)
 	}
 	return result
 }
 
 // GetCategoriesFromHTML method parse HTML page and return array of category items
-func GetCategoriesFromHTML(markup string, categoriesRequiredList []string) []*CategoryItem {
-	var result []*CategoryItem
+func GetCategoriesFromHTML(markup string, categoriesRequiredList []string) []*model.CategoryItem {
+	var result []*model.CategoryItem
 	doc, _ := html.Parse(strings.NewReader(markup))
 	tileNodes := getNodesBySelector(doc, categoryItemCSSClass)
 
@@ -84,7 +69,7 @@ func GetCategoriesFromHTML(markup string, categoriesRequiredList []string) []*Ca
 			if isCategoryCaptionValid(categoriesRequiredList, caption) {
 				imageURL := getAttrValueByKey(titleNode.NextSibling.Attr, "src")
 				menuURL := getAttrValueByKey(titleNode.Parent.Attr, "href")
-				categoryItem := &CategoryItem{index, caption, imageURL, menuURL}
+				categoryItem := &model.CategoryItem{index, caption, imageURL, menuURL}
 				result = append(result, categoryItem)
 			}
 		}
