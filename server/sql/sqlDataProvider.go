@@ -14,13 +14,13 @@ const (
 	categoryTableName = "category"
 )
 
-// The MySQLDataProvider struct provide CRUD operation for MySQL database
-type MySQLDataProvider struct {
+// The SQLDataProvider struct provide CRUD operation for MySQL database
+type SQLDataProvider struct {
 	ConnectionString string
 }
 
 // InsertMenuFromCategories insert a menu items to 'menu' table by categories
-func (provider *MySQLDataProvider) InsertMenuFromCategories(categories []*model.CategoryItem, getMenuData func(url string) []*model.MenuItem) {
+func (provider *SQLDataProvider) InsertMenuFromCategories(categories []*model.CategoryItem, getMenuData func(url string) []*model.MenuItem) {
 	db := createDBConnection(provider.ConnectionString)
 	tx, err := db.Begin()
 	if err != nil {
@@ -43,7 +43,7 @@ func (provider *MySQLDataProvider) InsertMenuFromCategories(categories []*model.
 }
 
 // InsertCategories method create 'category' table if not exist and insert category items to table
-func (provider *MySQLDataProvider) InsertCategories(categories []*model.CategoryItem) {
+func (provider *SQLDataProvider) InsertCategories(categories []*model.CategoryItem) {
 	db := createDBConnection(provider.ConnectionString)
 	tx, err := db.Begin()
 	if err != nil {

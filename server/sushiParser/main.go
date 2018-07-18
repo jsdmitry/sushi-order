@@ -15,7 +15,7 @@ var categoriesRequiredList = []string{"Супы", "Горячие блюда", "
 func main() {
 	categoriesHTML := GetHTMLByURL(commonURL)
 	categories := GetCategoriesFromHTML(categoriesHTML, categoriesRequiredList)
-	dataProvider := sql.MySQLDataProvider{ConnectionString: connectionString}
+	dataProvider := sql.SQLDataProvider{ConnectionString: connectionString}
 	dataProvider.InsertCategories(categories)
 	dataProvider.InsertMenuFromCategories(categories, func(url string) []*model.MenuItem {
 		menuHTML := GetHTMLByURL(commonURL + url)
