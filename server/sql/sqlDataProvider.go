@@ -17,17 +17,25 @@ const (
 // The SQLDataProvider struct provide CRUD operation for MySQL database
 type SQLDataProvider struct {
 	ConnectionString string
+	db               *sql.DB
+}
+
+// ConnectToDB method make connection to the data base
+func (provider *SQLDataProvider) ConnectToDB() {
+	db, err := sql.Open("mysql", provider.ConnectionString)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if err = db.Ping(); err != nil {
+		log.Fatalln(err)
+	}
+	provider.db = db
 }
 
 // InsertMenuFromCategories insert a menu items to 'menu' table by categories
 func (provider *SQLDataProvider) InsertMenuFromCategories(categories []*model.CategoryItem, getMenuData func(url string) []*model.MenuItem) {
-	db := createDBConnection(provider.ConnectionString)
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	tx := provider.createTX()
 	defer tx.Rollback()
-	defer db.Close()
 
 	removeAllItems(tx, menuTableName)
 	createMenuTable(tx)
@@ -36,7 +44,7 @@ func (provider *SQLDataProvider) InsertMenuFromCategories(categories []*model.Ca
 		insertMenu(tx, category.ID, getMenuData(category.MenuURL))
 	}
 
-	err = tx.Commit()
+	err := tx.Commit()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -44,13 +52,8 @@ func (provider *SQLDataProvider) InsertMenuFromCategories(categories []*model.Ca
 
 // InsertCategories method create 'category' table if not exist and insert category items to table
 func (provider *SQLDataProvider) InsertCategories(categories []*model.CategoryItem) {
-	db := createDBConnection(provider.ConnectionString)
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	tx := provider.createTX()
 	defer tx.Rollback()
-	defer db.Close()
 
 	removeAllItems(tx, categoryTableName)
 	createCategoryTable(tx)
@@ -58,10 +61,31 @@ func (provider *SQLDataProvider) InsertCategories(categories []*model.CategoryIt
 		insertCategoryItem(tx, categoryItem)
 	}
 
-	err = tx.Commit()
+	err := tx.Commit()
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+// GetCategories method make the get request for the categories data from a server
+func (provider *SQLDataProvider) GetCategories() []*model.CategoryItem {
+	rows, err := provider.db.Query(fmt.Sprintf("SELECT * FROM %s ORDER BY caption", categoryTableName))
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer rows.Close()
+
+	categories := make([]*model.CategoryItem, 0)
+	for rows.Next() {
+		categoryItem := new(model.CategoryItem)
+		err = rows.Scan(&categoryItem.ID, &categoryItem.Caption, &categoryItem.ImageURL)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		categories = append(categories, categoryItem)
+	}
+	return categories
 }
 
 func createMenuTable(tx *sql.Tx) {
@@ -96,12 +120,13 @@ func removeAllItems(tx *sql.Tx, tableName string) {
 	tx.Exec("DELETE FROM " + tableName)
 }
 
-func createDBConnection(connectionString string) *sql.DB {
-	db, err := sql.Open("mysql", connectionString)
+func (provider *SQLDataProvider) createTX() *sql.Tx {
+	tx, err := provider.db.Begin()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	return db
+
+	return tx
 }
 
 func insertCategoryItem(tx *sql.Tx, categoryItem *model.CategoryItem) {
