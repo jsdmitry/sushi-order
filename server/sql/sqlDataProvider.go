@@ -88,6 +88,36 @@ func (provider *SQLDataProvider) GetCategories() []*model.CategoryItem {
 	return categories
 }
 
+// GetMenuByCategoryID method return an array of menu item by a category item from data base
+func (provider *SQLDataProvider) GetMenuByCategoryID(categoryID uint64) []*model.MenuItem {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE category_id = %d ORDER BY caption", menuTableName, categoryID)
+	rows, err := provider.db.Query(query)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer rows.Close()
+
+	menu := make([]*model.MenuItem, 0)
+	for rows.Next() {
+		menuItem := new(model.MenuItem)
+		var id uint
+		var categoryID uint
+		err = rows.Scan(
+			&id,
+			&categoryID,
+			&menuItem.Caption,
+			&menuItem.ImageURL,
+			&menuItem.Description,
+			&menuItem.Price)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		menu = append(menu, menuItem)
+	}
+	return menu
+}
+
 func createMenuTable(tx *sql.Tx) {
 	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` ("+
 		"`id` INT(11) NOT NULL AUTO_INCREMENT, "+
