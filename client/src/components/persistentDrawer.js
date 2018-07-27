@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -18,7 +17,7 @@ const styles = theme => ({
     flexGrow: 1,
   },
   appFrame: {
-    height: 430,
+    height: "100%",
     zIndex: 1,
     overflow: 'hidden',
     position: 'relative',
@@ -93,7 +92,7 @@ const styles = theme => ({
 
 class PersistentDrawer extends React.Component {
   state = {
-    open: false,
+    open: true,
     anchor: 'left',
   };
 
@@ -120,7 +119,7 @@ class PersistentDrawer extends React.Component {
       >
         <div className={classes.drawerHeader}>
           <IconButton onClick={this.handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
           </IconButton>
         </div>
       </Drawer>
@@ -129,7 +128,7 @@ class PersistentDrawer extends React.Component {
     let before = null;
     let after = null;
 
-    if (anchor === 'left') {
+    if(anchor === 'left') {
       before = drawer;
     } else {
       after = drawer;
@@ -151,11 +150,8 @@ class PersistentDrawer extends React.Component {
                 onClick={this.handleDrawerOpen}
                 className={classNames(classes.menuButton, open && classes.hide)}
               >
-                <MenuIcon />
+                <MenuIcon/>
               </IconButton>
-              <Typography variant="title" color="inherit" noWrap>
-                Persistent drawer
-              </Typography>
             </Toolbar>
           </AppBar>
           {before}
@@ -165,8 +161,7 @@ class PersistentDrawer extends React.Component {
               [classes[`contentShift-${anchor}`]]: open,
             })}
           >
-            <div className={classes.drawerHeader} />
-            <Typography>{'You think water moves fast? You should see ice.'}</Typography>
+            <div className={classes.drawerHeader}/>
           </main>
           {after}
         </div>
