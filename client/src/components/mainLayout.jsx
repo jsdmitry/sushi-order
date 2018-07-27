@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
 import PersistentDrawer from "./persistentDrawer"
 
-
 class MainLayout extends Component {
-  render(){
+  render() {
     return (
       <PersistentDrawer/>
     );
