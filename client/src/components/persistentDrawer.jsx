@@ -8,7 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import CategoriesContainer from '../containers/categoriesContainer';
 
 const drawerWidth = 240;
 
@@ -105,34 +105,8 @@ class PersistentDrawer extends React.Component {
   };
 
   render() {
-    const { classes, theme } = this.props;
+    const { classes } = this.props;
     const { anchor, open } = this.state;
-
-    const drawer = (
-      <Drawer
-        variant="persistent"
-        anchor={anchor}
-        open={open}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
-        <div className={classes.drawerHeader}>
-          <IconButton onClick={this.handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
-          </IconButton>
-        </div>
-      </Drawer>
-    );
-
-    let before = null;
-    let after = null;
-
-    if(anchor === 'left') {
-      before = drawer;
-    } else {
-      after = drawer;
-    }
 
     return (
       <div className={classes.root}>
@@ -154,7 +128,21 @@ class PersistentDrawer extends React.Component {
               </IconButton>
             </Toolbar>
           </AppBar>
-          {before}
+          <Drawer
+            variant="persistent"
+            anchor={anchor}
+            open={open}
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+          >
+            <div className={classes.drawerHeader}>
+              <IconButton onClick={this.handleDrawerClose}>
+                <ChevronLeftIcon/>
+              </IconButton>
+            </div>
+            <CategoriesContainer/>
+          </Drawer>
           <main
             className={classNames(classes.content, classes[`content-${anchor}`], {
               [classes.contentShift]: open,
@@ -163,7 +151,6 @@ class PersistentDrawer extends React.Component {
           >
             <div className={classes.drawerHeader}/>
           </main>
-          {after}
         </div>
       </div>
     );
