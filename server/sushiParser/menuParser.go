@@ -58,19 +58,23 @@ func GetMenuFromHTML(markup string) []*model.MenuItem {
 
 // GetCategoriesFromHTML method parse HTML page and return array of category items
 func GetCategoriesFromHTML(markup string, categoriesRequiredList []string) []*model.CategoryItem {
-	var result []*model.CategoryItem
+	var (
+		result     []*model.CategoryItem
+		categoryID int
+	)
 	doc, _ := html.Parse(strings.NewReader(markup))
 	tileNodes := getNodesBySelector(doc, categoryItemCSSClass)
 
-	for index, tileNode := range tileNodes {
+	for _, tileNode := range tileNodes {
 		titleNode := getNodeBySelector(tileNode, categoryItemTitleCSSClass)
 		if titleNode != nil {
 			caption := titleNode.FirstChild.Data
 			if isCategoryCaptionValid(categoriesRequiredList, caption) {
 				imageURL := getAttrValueByKey(titleNode.NextSibling.Attr, "src")
 				menuURL := getAttrValueByKey(titleNode.Parent.Attr, "href")
-				categoryItem := &model.CategoryItem{index, caption, imageURL, menuURL}
+				categoryItem := &model.CategoryItem{categoryID, caption, imageURL, menuURL}
 				result = append(result, categoryItem)
+				categoryID++
 			}
 		}
 	}

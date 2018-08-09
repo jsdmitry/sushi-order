@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	menuTableName     = "menu"
-	categoryTableName = "category"
+	menuTableName       = "menu"
+	categoriesTableName = "categories"
 )
 
 // The SQLDataProvider struct provide CRUD operation for MySQL database
@@ -40,8 +40,12 @@ func (provider *SQLDataProvider) InsertMenuFromCategories(categories []*model.Ca
 	removeAllItems(tx, menuTableName)
 	createMenuTable(tx)
 
+	var menuItemCounter int
 	for _, category := range categories {
-		insertMenu(tx, category.ID, getMenuData(category.MenuURL))
+		insertMenu(tx, category.ID, getMenuData(category.MenuURL), func() int {
+			menuItemCounter++
+			return menuItemCounter
+		})
 	}
 
 	err := tx.Commit()
@@ -55,7 +59,7 @@ func (provider *SQLDataProvider) InsertCategories(categories []*model.CategoryIt
 	tx := provider.createTX()
 	defer tx.Rollback()
 
-	removeAllItems(tx, categoryTableName)
+	removeAllItems(tx, categoriesTableName)
 	createCategoryTable(tx)
 	for _, categoryItem := range categories {
 		insertCategoryItem(tx, categoryItem)
@@ -69,7 +73,7 @@ func (provider *SQLDataProvider) InsertCategories(categories []*model.CategoryIt
 
 // GetCategories method make the get request for the categories data from a server
 func (provider *SQLDataProvider) GetCategories() []*model.CategoryItem {
-	rows, err := provider.db.Query(fmt.Sprintf("SELECT * FROM %s ORDER BY caption", categoryTableName))
+	rows, err := provider.db.Query(fmt.Sprintf("SELECT * FROM %s ORDER BY caption", categoriesTableName))
 
 	if err != nil {
 		log.Fatalln(err)
@@ -120,7 +124,7 @@ func (provider *SQLDataProvider) GetMenuByCategoryID(categoryID uint64) []*model
 
 func createMenuTable(tx *sql.Tx) {
 	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` ("+
-		"`id` INT(11) NOT NULL AUTO_INCREMENT, "+
+		"`id` INT(11) NOT NULL, "+
 		"`category_id` INT(11) NOT NULL, "+
 		"`caption` VARCHAR(50) NOT NULL, "+
 		"`image_url` VARCHAR(150) NOT NULL, "+
@@ -138,7 +142,7 @@ func createCategoryTable(tx *sql.Tx) {
 		"`id` INT(11) NOT NULL, "+
 		"`caption` VARCHAR(50) NOT NULL, "+
 		"`image_url` VARCHAR(150) NOT NULL, "+
-		"PRIMARY KEY (`id`)) COLLATE='cp1251_general_ci';", categoryTableName)
+		"PRIMARY KEY (`id`)) COLLATE='cp1251_general_ci';", categoriesTableName)
 
 	_, err := tx.Exec(query)
 	if err != nil {
@@ -165,30 +169,31 @@ func insertCategoryItem(tx *sql.Tx, categoryItem *model.CategoryItem) {
 		categoryItem.Caption,
 		categoryItem.ImageURL)
 
-	query := fmt.Sprintf(`INSERT INTO %s (id, caption, image_url) VALUES(%s)`, categoryTableName, valuesString)
+	query := fmt.Sprintf(`INSERT INTO %s (id, caption, image_url) VALUES(%s)`, categoriesTableName, valuesString)
 	_, err := tx.Exec(query)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func insertMenuItem(tx *sql.Tx, categoryID int, menuItem *model.MenuItem) {
-	valuesString := fmt.Sprintf(`%d, "%s", "%s", "%s", %d`,
+func insertMenuItem(tx *sql.Tx, menuItemID int, categoryID int, menuItem *model.MenuItem) {
+	valuesString := fmt.Sprintf(`%d, %d, "%s", "%s", "%s", %d`,
+		menuItemID,
 		categoryID,
 		menuItem.Caption,
 		menuItem.ImageURL,
 		menuItem.Description,
 		menuItem.Price)
 
-	query := fmt.Sprintf(`INSERT INTO %s (category_id, caption, image_url, description, price) VALUES(%s)`, menuTableName, valuesString)
+	query := fmt.Sprintf(`INSERT INTO %s (id, category_id, caption, image_url, description, price) VALUES(%s)`, menuTableName, valuesString)
 	_, err := tx.Exec(query)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func insertMenu(tx *sql.Tx, categoryID int, menu []*model.MenuItem) {
+func insertMenu(tx *sql.Tx, categoryID int, menu []*model.MenuItem, generateMenuItemID func() int) {
 	for _, menuItem := range menu {
-		insertMenuItem(tx, categoryID, menuItem)
+		insertMenuItem(tx, generateMenuItemID(), categoryID, menuItem)
 	}
 }
