@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
+import {withStyles} from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -11,16 +12,29 @@ const styles = theme => ({
     width: '100%',
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
+  },
+  avatar: {
+    width: 60,
+    height: 60
   }
 });
 
 function CategoriesList(props) {
-  const { classes, categories } = props;
+  const { classes, categories, onCategorySelectionChanged } = props;
   const listItems = categories.data.map((category) =>
-    <ListItem button>
-      <Avatar src={category.ImageURL}>
+    <ListItem
+      button
+      onClick={() => {
+        onCategorySelectionChanged(category.ID);
+      }}
+      key={category.ID}
+    >
+      <Avatar
+        src={category.ImageURL}
+        className={classNames(classes.avatar)}
+      >
       </Avatar>
-      <ListItemText primary={category.Caption} />
+      <ListItemText primary={category.Caption}/>
     </ListItem>
   );
   return (

@@ -6,3 +6,10 @@ export function getCategoriesSuccess(data) {
     data: data
   };
 }
+
+export function selectCategory(id) {
+  return {
+    type: types.SELECT_CATEGORY,
+    id: id
+  };
+}

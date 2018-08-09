@@ -18,7 +18,7 @@ class CategoriesContainer extends Component {
 
   render() {
     return (
-      <CategoriesList categories={this.props.categories}/>
+      <CategoriesList categories={this.props.categories} onCategorySelectionChanged={this.props.onCategorySelectionChanged}/>
     );
   }
 }

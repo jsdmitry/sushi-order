@@ -6,10 +6,8 @@ const initialState = {
 
 export default function(state = initialState, action) {
   switch(action.type) {
-    case types.CATEGORIES_LIST_SUCCESS:
+    case types.GET_MENU_FROM_CATEGORY_SUCCESS:
       return { ...state, data: action.data };
-    case types.SELECT_CATEGORY:
-      return { ...state, selectedCategoryID: action.id };
     default:
       return state;
   }

@@ -9,6 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import CategoriesContainer from '../containers/categoriesContainer';
+import MenuCantainer from '../containers/menuContainer';
 
 const drawerWidth = 240;
 
@@ -105,7 +106,7 @@ class PersistentDrawer extends React.Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, selectCategory, selectedCategoryID } = this.props;
     const { anchor, open } = this.state;
 
     return (
@@ -141,7 +142,9 @@ class PersistentDrawer extends React.Component {
                 <ChevronLeftIcon/>
               </IconButton>
             </div>
-            <CategoriesContainer/>
+            <CategoriesContainer onCategorySelectionChanged={(id) => {
+              selectCategory(id);
+            }}/>
           </Drawer>
           <main
             className={classNames(classes.content, classes[`content-${anchor}`], {
@@ -150,6 +153,7 @@ class PersistentDrawer extends React.Component {
             })}
           >
             <div className={classes.drawerHeader}/>
+            <MenuCantainer selectedCategoryID={selectedCategoryID}/>
           </main>
         </div>
       </div>

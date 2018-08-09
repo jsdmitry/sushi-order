@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import MainLayout from './components/mainLayout';
+import MainLayout from './containers/mainLayout';
 
 class App extends Component {
   constructor(props) {
