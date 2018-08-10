@@ -8,22 +8,41 @@ import CardMedia from '@material-ui/core/CardMedia';
 import IconButton from '@material-ui/core/IconButton';
 import ShoppingCartOutlined from '@material-ui/icons/ShoppingCartOutlined';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 
-const styles = {
+const styles = theme => ({
   card: {
-    maxWidth: 300,
+    maxWidth: 300
   },
   media: {
     height: 0,
     paddingTop: '56.25%', // 16:9
+  },
+  input: {
+    width: 40
+  },
+  footer: {
+    width: "100%",
+    display: 'grid',
+    gridTemplateColumns: '2fr 1fr 1fr',
+  },
+  count: {
+    marginTop: "-16px"
+  },
+  cart: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: "-4px"
+  },
+  price: {
+    marginTop: 8,
+    marginLeft: 8
   }
-};
+});
 
 function MenuItem(props) {
   const { classes, imageURL, title, description, price } = props;
   return (
-    <Grid item xs>
       <Card className={classes.card}>
         <CardMedia
           className={classes.media}
@@ -37,17 +56,34 @@ function MenuItem(props) {
           <Typography component="p">
             {description}
           </Typography>
-          <Typography component="h1">
-            {price} руб.
-          </Typography>
         </CardContent>
         <CardActions>
-          <IconButton aria-label="Cart">
-            <ShoppingCartOutlined />
-          </IconButton>
+          <div className={classes.footer}>
+            <Typography
+              variant="subheading"
+              align="left"
+              className={classes.price}
+            >
+                {price + "руб."}
+            </Typography>
+            <TextField
+              className={classes.count}
+              id="number"
+              label="Кол-во"
+              //value={this.state.age}
+              //onChange={this.handleChange('age')}
+              type="number"
+              //className={classes.textField}
+              margin="none"
+            />
+            <div className={classes.cart}>
+              <IconButton aria-label="Cart">
+                <ShoppingCartOutlined />
+              </IconButton>
+            </div>
+          </div>
         </CardActions>
       </Card>
-    </Grid>
   );
 }
 

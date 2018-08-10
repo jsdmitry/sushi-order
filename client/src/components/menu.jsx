@@ -1,34 +1,31 @@
 import React from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import MenuItemRow from '../components/menuItemRow';
-import Grid from '@material-ui/core/Grid';
+import MenuItem from "./menuItem";
 
 const styles = theme => ({
-  root: {
-    flexGrow: 1
+  container: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridGap: `${theme.spacing.unit * 3}px`,
   }
 });
 
-function prepareMenuData(data, colCount) {
-  let result = [];
-  for(let i = 0; i < data.length; i += colCount) {
-    result.push(data.slice(i,  i + colCount));
-  }
-  return result;
-}
-
 function Menu(props) {
-  const { classes, data, colCount } = props;
-  const rowsData = prepareMenuData(data, colCount);
+  const { classes, data } = props;
 
   return (
-    <div className={classes.root}>
-      <Grid container spacing={8}>
-      {rowsData.map((rowData, index) =>
-        <MenuItemRow data={rowData} spacing={8} key={index}/>
+    <div className={classes.container}>
+      {data.map((cellData) =>
+        <MenuItem
+          title={cellData.Caption}
+          imageURL={cellData.ImageURL}
+          description={cellData.Description}
+          price={cellData.Price}
+          key={cellData.Caption}
+        >
+        </MenuItem>
       )}
-      </Grid>
     </div>
   );
 }
