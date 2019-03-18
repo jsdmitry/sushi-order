@@ -1,4 +1,4 @@
-import * as types from '../actions/actionsType';
+import * as types from './actionsType';
 
 export function getCategoriesSuccess(data) {
   return {

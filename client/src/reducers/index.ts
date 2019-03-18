@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import categories from '../reducers/categories';
-import menu from '../reducers/menu';
+import categories from './categories';
+import menu from './menu';
 
 export default combineReducers({
   categories,
