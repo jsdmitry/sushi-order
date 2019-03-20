@@ -2,8 +2,9 @@ import React from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import MenuItem from "./menuItem";
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
 
-const styles = theme => ({
+const styles = (theme:Theme) => ({
   container: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
@@ -11,12 +12,12 @@ const styles = theme => ({
   }
 });
 
-function Menu(props) {
+function Menu(props:any) {
   const { classes, data } = props;
 
   return (
     <div className={classes.container}>
-      {data.map((cellData) =>
+      {data.map((cellData:any) =>
         <MenuItem
           title={cellData.Caption}
           imageURL={cellData.ImageURL}

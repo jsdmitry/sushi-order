@@ -9,8 +9,9 @@ import IconButton from '@material-ui/core/IconButton';
 import ShoppingCartOutlined from '@material-ui/icons/ShoppingCartOutlined';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
 
-const styles = theme => ({
+const styles = (theme:Theme) => ({
   card: {
     maxWidth: 300
   },
@@ -40,7 +41,7 @@ const styles = theme => ({
   }
 });
 
-function MenuItem(props) {
+function MenuItem(props:any) {
   const { classes, imageURL, title, description, price } = props;
   return (
       <Card className={classes.card}>

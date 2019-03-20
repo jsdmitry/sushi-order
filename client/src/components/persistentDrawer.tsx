@@ -10,10 +10,11 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import CategoriesContainer from '../containers/categoriesContainer';
 import MenuCantainer from '../containers/menuContainer';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
 
 const drawerWidth = 240;
 
-const styles = theme => ({
+const styles = (theme:Theme) => ({
   root: {
     flexGrow: 1,
   },
@@ -142,7 +143,7 @@ class PersistentDrawer extends React.Component {
                 <ChevronLeftIcon/>
               </IconButton>
             </div>
-            <CategoriesContainer onCategorySelectionChanged={(id) => {
+            <CategoriesContainer onCategorySelectionChanged={(id:number) => {
               selectCategory(id);
             }}/>
           </Drawer>

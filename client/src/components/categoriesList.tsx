@@ -6,8 +6,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
 
-const styles = theme => ({
+const styles = (theme:Theme) => ({
   root: {
     width: '100%',
     maxWidth: 360,
@@ -19,9 +20,9 @@ const styles = theme => ({
   }
 });
 
-function CategoriesList(props) {
+function CategoriesList(props:any) {
   const { classes, categories, onCategorySelectionChanged } = props;
-  const listItems = categories.data.map((category) =>
+  const listItems = categories.data.map((category:any) =>
     <ListItem
       button
       onClick={() => {
